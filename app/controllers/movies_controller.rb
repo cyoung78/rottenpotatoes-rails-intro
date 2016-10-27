@@ -12,31 +12,24 @@ class MoviesController < ApplicationController
 
 
   def index
-     @movies = Movie.order(params[:sort])
-     @all_ratings = Movie.all_ratings
-       if params[:commit] == 'Refresh'
+     @movies = Movie.where(params[:sort_by])
       if params[:ratings]
-        @filter = params[:ratings].keys
-      else
-        @filter=@all_ratings
+        @movies = Movie.where(:rating=>params[:ratings].keys)
       end
-    else
-      if params[:ratings]
-        @filter = params[:ratings].keys
-      else
-        if session[:ratings]
-          @filter=session[:ratings]
-        else
-          @filter = @all_ratings
-        end
+      @sort = params[:sort_by]
+      @all_ratings = Movie.all_ratings
+      @set_ratings = params[:ratings]
+      if !@set_ratings
+        @set_ratings = Hash.new
       end
-    end
-    
-    @movies = @filter
-    if params[:sort]
-      if params[:sort] == "title"
+      
+    if (params[:sort] != nil)
+      case params[:sort]
+      when "title"
+        @movies = @movies.order(:title)
         @title_header = "hilite"
-      elsif params[:sort] == "release_date"
+      when "release_date"
+        @movies = @movies.order(:release_date)
         @release_date = "hilite"
       end
     end
